@@ -20,7 +20,7 @@ init = ->
     e.preventDefault()
     x = e.touches[0].clientX - canvasRect.left
     y = e.touches[0].clientY - canvasRect.top
-    window.app.mousemove(x, y)
+    window.app.mousemove(x, y, 1)
 
   canvas.addEventListener "touchend", (e) ->
     e.preventDefault()
