@@ -1,4 +1,4 @@
-FontFaceObserver = require 'FontFaceObserver'
+FontFaceObserver = require 'fontfaceobserver'
 
 MenuView = require './MenuView'
 CounterView = require './CounterView'

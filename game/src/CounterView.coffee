@@ -166,7 +166,7 @@ class CounterView
       @onDragPos(x, y)
       @draw()
 
-  mouseup: (x, y) ->
+  mouseup: ->
     # console.log "mouseup #{x}, #{y}"
 
     dragPlayer = @players[@dragPlayerIndex]
