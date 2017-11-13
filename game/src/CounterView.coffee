@@ -27,7 +27,7 @@ class CounterView
       x: @canvas.width / 2
       y: @canvas.height / 2
 
-    @sliceCount = 16
+    @sliceCount = 20
     @halfSliceCount = Math.floor(@sliceCount / 2)
 
     @dialRadius = @center.x * 0.7
@@ -41,11 +41,18 @@ class CounterView
     @layouts.push {
       players: [
         @playerLayout(2,  xstep6 * 3, ystep6 * 5)
-        @playerLayout(4,  xstep6,     ystep6 * 5)
-        @playerLayout(7,  xstep6,     ystep6 * 3)
-        @playerLayout(10, xstep6,     ystep6    )
-        @playerLayout(12, xstep6 * 3, ystep6    )
-        @playerLayout(15, xstep6 * 3, ystep6 * 3)
+        @playerLayout(5,  xstep6,     ystep6 * 5)
+        @playerLayout(9,  xstep6,     ystep6 * 3)
+        @playerLayout(12, xstep6,     ystep6    )
+        @playerLayout(15, xstep6 * 3, ystep6    )
+        @playerLayout(19, xstep6 * 3, ystep6 * 3)
+
+        # @playerLayout(2,  xstep6 * 3, ystep6 * 5)
+        # @playerLayout(4,  xstep6,     ystep6 * 5)
+        # @playerLayout(7,  xstep6,     ystep6 * 3)
+        # @playerLayout(10, xstep6,     ystep6    )
+        # @playerLayout(12, xstep6 * 3, ystep6    )
+        # @playerLayout(15, xstep6 * 3, ystep6 * 3)
       ]
     }
 
