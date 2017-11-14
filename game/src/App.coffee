@@ -22,7 +22,7 @@ class App
       menu: new MenuView(this, @canvas)
       counter: new CounterView(this, @canvas)
     @views.layout = new LayoutView(this, @canvas, @views.counter)
-    @switchView("layout")
+    @switchView("counter")
 
   measureFonts: ->
     for fontName, f of @fonts
