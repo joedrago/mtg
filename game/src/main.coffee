@@ -10,11 +10,11 @@ init = ->
   canvasRect = canvas.getBoundingClientRect()
 
   noSleep = new NoSleep()
-  noSleep.enable()
 
   window.app = new App(canvas)
 
   canvas.addEventListener "touchstart", (e) ->
+    noSleep.enable()
     e.preventDefault()
     x = e.touches[0].clientX - canvasRect.left
     y = e.touches[0].clientY - canvasRect.top
@@ -31,6 +31,7 @@ init = ->
     window.app.mouseup()
 
   canvas.addEventListener "mousedown", (e) ->
+    noSleep.enable()
     e.preventDefault()
     x = e.clientX - canvasRect.left
     y = e.clientY - canvasRect.top
