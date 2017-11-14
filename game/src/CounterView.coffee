@@ -304,7 +304,13 @@ class CounterView
     if jsonString == null
       return false
 
-    state = JSON.parse(jsonString)
+    try
+      state = JSON.parse(jsonString)
+    catch
+      return false
+
+    if not state
+      return false
 
     # TODO: validate info
     @players = state.players
