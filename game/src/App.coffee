@@ -2,12 +2,14 @@ FontFaceObserver = require 'fontfaceobserver'
 
 MenuView = require './MenuView'
 CounterView = require './CounterView'
+LayoutView = require './LayoutView'
 version = require './version'
 
 class App
   constructor: (@canvas) ->
     @ctx = @canvas.getContext("2d")
     @loadFont("saxMono")
+    @loadFont("Instruction")
     @fonts = {}
 
     @versionFontHeight = Math.floor(@canvas.height * 0.02)
@@ -19,7 +21,8 @@ class App
     @views =
       menu: new MenuView(this, @canvas)
       counter: new CounterView(this, @canvas)
-    @switchView("counter")
+    @views.layout = new LayoutView(this, @canvas, @views.counter)
+    @switchView("layout")
 
   measureFonts: ->
     for fontName, f of @fonts
@@ -125,14 +128,35 @@ class App
     @ctx.closePath()
     @ctx.fill()
 
+  strokeCircle: (x, y, r, color, lineWidth) ->
+    @ctx.beginPath()
+    @ctx.strokeStyle = color
+    @ctx.lineWidth = lineWidth
+    @ctx.arc(x, y, r, 0, Math.PI * 2)
+    @ctx.closePath()
+    @ctx.stroke()
+
   drawTextCentered: (text, cx, cy, font, color, rot) ->
     @ctx.save()
     @ctx.translate(cx, cy)
     @ctx.rotate(rot)
     @ctx.font = font.style
     @ctx.fillStyle = color
+
     @ctx.textAlign = "center"
     @ctx.fillText(text, 0, (font.height / 2))
+
+    @ctx.restore()
+
+  strokeTextCentered: (text, cx, cy, font, color, lineWidth, rot) ->
+    @ctx.save()
+    @ctx.translate(cx, cy)
+    @ctx.rotate(rot)
+    @ctx.font = font.style
+    @ctx.textAlign = "center"
+    @ctx.strokeStyle = color
+    @ctx.lineWidth = lineWidth
+    @ctx.strokeText(text, 0, (font.height / 2))
     @ctx.restore()
 
   drawLowerLeft: (text, color = "white") ->

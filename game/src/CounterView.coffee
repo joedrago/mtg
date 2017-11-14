@@ -1,7 +1,21 @@
 Color =
+  background: "#333333"
+  dial: "#333333"
+  dialHighlight: "#666666"
   health: "white"
   changingHealth: "red"
-  centeredHealth: "white"
+  addText: "#00ff00"
+  subtractText: "#ff0000"
+  menu: "#ffffff"
+
+PlayerColors = [
+  "#ffaaaa"
+  "#aaffaa"
+  "#aaaaff"
+  "#ffffaa"
+  "#ffaaff"
+  "#aaffff"
+]
 
 TWO_PI = Math.PI * 2
 
@@ -17,11 +31,13 @@ class CounterView
     console.log "canvas size #{@canvas.width}x#{@canvas.height}"
 
     # init fonts
-    healthFontPixels = Math.floor(@canvas.width * 0.35)
+    healthFontPixels = Math.floor(@canvas.width * 0.30)
     incrementFontPixels = Math.floor(@canvas.width * 0.05)
+    menuFontPixels = Math.floor(@canvas.width * 0.05)
     @fonts =
-      health:    @app.registerFont("health",    "#{healthFontPixels}px saxMono, monospace")
-      increment: @app.registerFont("increment", "#{incrementFontPixels}px saxMono, monospace")
+      health:    @app.registerFont("health",    "#{healthFontPixels}px Instruction, monospace")
+      increment: @app.registerFont("increment", "#{incrementFontPixels}px Instruction, monospace")
+      menu:      @app.registerFont("increment", "#{menuFontPixels}px Instruction, monospace")
 
     @center =
       x: @canvas.width / 2
@@ -29,30 +45,26 @@ class CounterView
 
     @sliceCount = 20
     @halfSliceCount = Math.floor(@sliceCount / 2)
+    @sliceAngle = TWO_PI / @sliceCount
+    @halfSliceAngle = @sliceAngle / 2
 
-    @dialRadius = @center.x * 0.7
-    @dialIncrementRadius = @center.x * 0.6
+    @dialRadius = @center.x * 0.8
+    @dialIncrementRadius = @center.x * 0.7
+    @menuRadius = @center.x * 0.1
 
     @layouts = []
 
-    # 6 players
-    xstep6 = @center.x / 2
-    ystep6 = @center.y / 3
+    cRadius6 = @center.x * 0.7
+    fRadius6 = @center.x * 1.1
     @layouts.push {
+      name: "Commander 6P"
       players: [
-        @playerLayout(2,  xstep6 * 3, ystep6 * 5)
-        @playerLayout(5,  xstep6,     ystep6 * 5)
-        @playerLayout(9,  xstep6,     ystep6 * 3)
-        @playerLayout(12, xstep6,     ystep6    )
-        @playerLayout(15, xstep6 * 3, ystep6    )
-        @playerLayout(19, xstep6 * 3, ystep6 * 3)
-
-        # @playerLayout(2,  xstep6 * 3, ystep6 * 5)
-        # @playerLayout(4,  xstep6,     ystep6 * 5)
-        # @playerLayout(7,  xstep6,     ystep6 * 3)
-        # @playerLayout(10, xstep6,     ystep6    )
-        # @playerLayout(12, xstep6 * 3, ystep6    )
-        # @playerLayout(15, xstep6 * 3, ystep6 * 3)
+        @playerLayout(PlayerColors[0], 2, fRadius6, 40)
+        @playerLayout(PlayerColors[1], 6, fRadius6, 40)
+        @playerLayout(PlayerColors[2], 9, cRadius6, 40)
+        @playerLayout(PlayerColors[3], 12, fRadius6, 40)
+        @playerLayout(PlayerColors[4], 16, fRadius6, 40)
+        @playerLayout(PlayerColors[5], 19, cRadius6, 40)
       ]
     }
 
@@ -87,21 +99,22 @@ class CounterView
     posAngle = Math.atan2(y - @center.y, x - @center.x)
     if posAngle < 0
       posAngle += Math.PI * 2
-    sliceAngle = TWO_PI / @sliceCount
     angle = 0
     for slice in [0...@sliceCount]
-      if (posAngle >= angle) and (posAngle < (angle + sliceAngle))
+      if (posAngle >= angle) and (posAngle < (angle + @sliceAngle))
         return slice
-      angle += sliceAngle
+      angle += @sliceAngle
     return 0
 
-  playerLayout: (slice, x, y) ->
+  playerLayout: (color, slice, radius, health) ->
+    c = @unpolar(((slice + 1) % @sliceCount) * @sliceAngle, radius, @center.x, @center.y)
     player =
-      x: x
-      y: y
-      angle: @facingOutAngle(x, y)
+      x: c.x
+      y: c.y
+      angle: @facingOutAngle(c.x, c.y)
       slice: slice
-      health: 20
+      health: health
+      color: color
     return player
 
   distance: (x0, y0, x1, y1) ->
@@ -163,6 +176,11 @@ class CounterView
     @dragDelta = 0
 
   mousedown: (x, y) ->
+    distanceFromCenter = @distance(x, y, @center.x, @center.y)
+    if distanceFromCenter < @menuRadius
+      @app.switchView("menu")
+      return
+
     # console.log "mousedown #{x}, #{y}"
     @onDragPos(x, y)
     @draw()
@@ -174,15 +192,14 @@ class CounterView
       @draw()
 
   mouseup: ->
-    # console.log "mouseup #{x}, #{y}"
-
-    dragPlayer = @players[@dragPlayerIndex]
-    newHealth = dragPlayer.health
-    if @dragDelta > 1
-      newHealth += @dragDelta - 1
-    else if @dragDelta < 0
-      newHealth += @dragDelta
-    dragPlayer.health = newHealth
+    if @dragging
+      dragPlayer = @players[@dragPlayerIndex]
+      newHealth = dragPlayer.health
+      if @dragDelta > 1
+        newHealth += @dragDelta - 1
+      else if @dragDelta < 0
+        newHealth += @dragDelta
+      dragPlayer.health = newHealth
 
     @onDragReset()
     @draw()
@@ -204,41 +221,43 @@ class CounterView
     console.log "draw()"
 
     # Clear screen to black
-    @app.drawFill(0, 0, @canvas.width, @canvas.height, "black")
+    @app.drawFill(0, 0, @canvas.width, @canvas.height, Color.background)
     # @app.drawRect(@center.x, @center.y, 1, 1, "white", 1) # debug center dot
+
+    @app.strokeCircle(@center.x, @center.y, @menuRadius, "white", 4)
+    @app.drawTextCentered("M", @center.x, @center.y, @fonts.menu, Color.menu, 0)
 
     for player, index in @players
       color = Color.health
       if @dragging and (index == @dragPlayerIndex)
         color = Color.changingHealth
-      @app.drawTextCentered(String(player.health), player.x, player.y, @fonts.health, color, player.angle)
+      @app.drawTextCentered(  String(player.health), player.x, player.y, @fonts.health, player.color, player.angle)
+      @app.strokeTextCentered(String(player.health), player.x, player.y, @fonts.health, "white", 4, player.angle)
 
     if @dragging
       dragPlayer = @players[@dragPlayerIndex]
-      sliceAngle = TWO_PI / @sliceCount
-      halfSliceAngle = sliceAngle / 2
 
-      @app.drawArc(@center.x, @center.y, @dialRadius, 0, TWO_PI, "#333333")
+      @app.drawArc(@center.x, @center.y, @dialRadius, 0, TWO_PI, Color.dial)
 
       for i in [0...@halfSliceCount+1]
         slice = (@dragSlice + i) % @sliceCount
-        angle = slice * sliceAngle
+        angle = slice * @sliceAngle
         value = @dragDelta + i
         if slice == @dragSlice
-          @app.drawArc(@center.x, @center.y, @dialRadius, angle, angle + sliceAngle, "#555555")
+          @app.drawArc(@center.x, @center.y, @dialRadius, angle, angle + @sliceAngle, Color.dialHighlight)
         if (value != 0) and (value != 1)
           if value > 0
             textV = "+#{value - 1}"
-            textColor = "#aaffaa"
+            textColor = Color.addText
           else
             textV = "#{value}"
-            textColor = "#ffaaaa"
-          textPos = @unpolar(angle + halfSliceAngle, @dialIncrementRadius, @center.x, @center.y)
+            textColor = Color.subtractText
+          textPos = @unpolar(angle + @halfSliceAngle, @dialIncrementRadius, @center.x, @center.y)
           @app.drawTextCentered(textV, textPos.x, textPos.y, @fonts.increment, textColor, @facingOutAngle(textPos.x, textPos.y))
 
       for i in [1...@halfSliceCount]
         slice = (@sliceCount + @dragSlice - i) % @sliceCount
-        angle = slice * sliceAngle
+        angle = slice * @sliceAngle
         value = @dragDelta - i
         if (value != 0) and (value != 1)
           if value > 0
@@ -247,15 +266,18 @@ class CounterView
           else
             textV = "#{value}"
             textColor = "#ffaaaa"
-          textPos = @unpolar(angle + halfSliceAngle, @dialIncrementRadius, @center.x, @center.y)
+          textPos = @unpolar(angle + @halfSliceAngle, @dialIncrementRadius, @center.x, @center.y)
           @app.drawTextCentered(textV, textPos.x, textPos.y, @fonts.increment, textColor, @facingOutAngle(textPos.x, textPos.y))
+
+      @app.strokeCircle(@center.x, @center.y, @dialRadius, "white", 4)
 
       estimatedHealth = dragPlayer.health
       if @dragDelta > 1
         estimatedHealth += @dragDelta - 1
       else if @dragDelta < 0
         estimatedHealth += @dragDelta
-      @app.drawTextCentered(String(estimatedHealth), @center.x, @center.y, @fonts.health, Color.centeredHealth, dragPlayer.angle)
+      @app.drawTextCentered(  estimatedHealth, @center.x, @center.y, @fonts.health, dragPlayer.color, dragPlayer.angle)
+      @app.strokeTextCentered(estimatedHealth, @center.x, @center.y, @fonts.health, "white", 4, dragPlayer.angle)
 
     return
 

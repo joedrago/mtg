@@ -13,7 +13,7 @@ buttonPos = (index) ->
     y += BUTTON_SEPARATOR
   return y
 
-class MenuView
+class LayoutView
   constructor: (@app, @canvas) ->
     @buttons =
       chooseLayout:
@@ -58,15 +58,15 @@ class MenuView
 
     y1 = @canvas.height * 0.05
     y2 = @canvas.height * 0.15
-    @app.drawTextCentered("MTG", x + shadowOffset, y2 + shadowOffset, @titleFont, "#000000")
-    @app.drawTextCentered("MTG", x, y2, @titleFont, "#ffffff")
+    @app.drawTextCentered("LAYOUT", x + shadowOffset, y2 + shadowOffset, @titleFont, "#000000")
+    @app.drawTextCentered("LAYOUT", x, y2, @titleFont, "#ffffff")
 
-    for buttonName, button of @buttons
-      @app.drawRoundedRect(button.x + shadowOffset, button.y + shadowOffset, button.w, button.h, button.h * 0.3, "black", "black")
-      @app.drawRoundedRect(button.x, button.y, button.w, button.h, button.h * 0.3, button.bgColor, "#999999")
-      @app.drawTextCentered(button.text, button.x + (button.w / 2), button.y + (button.h / 2), @buttonFont, button.textColor)
+    # for buttonName, button of @buttons
+    #   @app.drawRoundedRect(button.x + shadowOffset, button.y + shadowOffset, button.w, button.h, button.h * 0.3, "black", "black")
+    #   @app.drawRoundedRect(button.x, button.y, button.w, button.h, button.h * 0.3, button.bgColor, "#999999")
+    #   @app.drawTextCentered(button.text, button.x + (button.w / 2), button.y + (button.h / 2), @buttonFont, button.textColor)
 
-    @app.drawVersion()
+    # @app.drawVersion()
 
   mousedown: (x, y) ->
     for buttonName, button of @buttons
@@ -79,11 +79,10 @@ class MenuView
   mouseup: ->
 
   chooseLayout: ->
-    @app.switchView("layout")
 
   resetAllHealth: ->
 
   resume: ->
     @app.switchView("counter")
 
-module.exports = MenuView
+module.exports = LayoutView
