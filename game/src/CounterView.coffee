@@ -150,13 +150,15 @@ class CounterView
       ]
     }
 
-    @chooseLayout(0)
+    if not @load()
+      @chooseLayout(0)
     @onDragReset()
     @draw()
 
   chooseLayout: (layout) ->
     @layoutIndex = layout
     @players = clone(@layouts[layout].players)
+    @save()
     return
 
   resetAllHealth: ->
@@ -288,9 +290,42 @@ class CounterView
       else if @dragDelta < 0
         newHealth += @dragDelta
       dragPlayer.health = newHealth
+      @save()
 
     @onDragReset()
     @draw()
+
+  # -------------------------------------------------------------------------------------
+  load: ->
+    if not localStorage
+      alert("No local storage, nothing will work")
+      return false
+    jsonString = localStorage.getItem("state")
+    if jsonString == null
+      return false
+
+    state = JSON.parse(jsonString)
+
+    # TODO: validate info
+    @players = state.players
+    @layoutIndex = state.layoutIndex
+
+    console.log "Loaded state."
+    return true
+
+  save: ->
+    if not localStorage
+      alert("No local storage, nothing will work")
+      return false
+
+    state =
+      players: @players
+      layoutIndex: @layoutIndex
+
+    jsonString = JSON.stringify(state)
+    localStorage.setItem("state", jsonString)
+    console.log "Saved state (#{jsonString.length} chars)"
+    return true
 
   # -------------------------------------------------------------------------------------
 

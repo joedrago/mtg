@@ -53,26 +53,9 @@ class App
     @view = @views[view]
     @draw()
 
-  newGame: (difficulty) ->
-    # console.log "app.newGame(#{difficulty})"
-
-    # @drawFill(0, 0, @canvas.width, @canvas.height, "#444444")
-    # @drawTextCentered("Generating, please wait...", @canvas.width / 2, @canvas.height / 2, @generatingFont, "#ffffff")
-
-    # window.setTimeout =>
-    # @views.sudoku.newGame(difficulty)
-    # @switchView("sudoku")
-    # , 0
-
   resetAllHealth: ->
     @views.counter.resetAllHealth()
     @switchView("counter")
-
-  import: (importString) ->
-    # return @views.sudoku.import(importString)
-
-  export: ->
-    # return @views.sudoku.export()
 
   draw: ->
     @view.draw()
