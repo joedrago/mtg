@@ -1,4 +1,5 @@
 App = require './App'
+NoSleep = require 'nosleep.js'
 
 init = ->
   console.log "init"
@@ -7,6 +8,9 @@ init = ->
   canvas.height = document.documentElement.clientHeight
   document.body.insertBefore(canvas, document.body.childNodes[0])
   canvasRect = canvas.getBoundingClientRect()
+
+  noSleep = new NoSleep()
+  noSleep.enable()
 
   window.app = new App(canvas)
 
