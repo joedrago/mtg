@@ -300,7 +300,7 @@ class CounterView
     if not localStorage
       alert("No local storage, nothing will work")
       return false
-    jsonString = localStorage.getItem("state")
+    jsonString = localStorage.getItem("mtgstate")
     if jsonString == null
       return false
 
@@ -329,7 +329,7 @@ class CounterView
       layoutIndex: @layoutIndex
 
     jsonString = JSON.stringify(state)
-    localStorage.setItem("state", jsonString)
+    localStorage.setItem("mtgstate", jsonString)
     console.log "Saved state (#{jsonString.length} chars)"
     return true
 
