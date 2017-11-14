@@ -9,12 +9,12 @@ Color =
   menu: "#ffffff"
 
 PlayerColors = [
-  "#ffaaaa"
-  "#aaffaa"
-  "#aaaaff"
-  "#ffffaa"
-  "#ffaaff"
-  "#aaffff"
+  "#ffff77"
+  "#7777ff"
+  "#77ff77"
+  "#77ffff"
+  "#ff77ff"
+  "#ff7777"
 ]
 
 TWO_PI = Math.PI * 2
@@ -59,7 +59,7 @@ class CounterView
 
     fRadius2 = @center.y * 0.6
     cRadius6 = @center.x * 0.7
-    fRadius6 = @center.x * 1.1
+    fRadius6 = @center.x * 1.0
 
     @layouts.push {
       name: "Solo"
