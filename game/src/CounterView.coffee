@@ -30,12 +30,15 @@ class CounterView
   constructor: (@app, @canvas) ->
     console.log "canvas size #{@canvas.width}x#{@canvas.height}"
 
+    @Color = Color
+    @PlayerColors = PlayerColors
+
     # init fonts
-    healthFontPixels = Math.floor(@canvas.width * 0.30)
+    @healthFontPixels = Math.floor(@canvas.width * 0.30)
     incrementFontPixels = Math.floor(@canvas.width * 0.05)
     menuFontPixels = Math.floor(@canvas.width * 0.05)
     @fonts =
-      health:    @app.registerFont("health",    "#{healthFontPixels}px Instruction, monospace")
+      health:    @app.registerFont("health",    "#{@healthFontPixels}px Instruction, monospace")
       increment: @app.registerFont("increment", "#{incrementFontPixels}px Instruction, monospace")
       menu:      @app.registerFont("increment", "#{menuFontPixels}px Instruction, monospace")
 
@@ -54,17 +57,96 @@ class CounterView
 
     @layouts = []
 
+    fRadius2 = @center.y * 0.6
     cRadius6 = @center.x * 0.7
     fRadius6 = @center.x * 1.1
+
+    @layouts.push {
+      name: "Solo"
+      players: [
+        @playerLayout(PlayerColors[0], 4, fRadius2, 20)
+      ]
+    }
+
+    @layouts.push {
+      name: "2P"
+      players: [
+        @playerLayout(PlayerColors[0], 4, fRadius2, 20)
+        @playerLayout(PlayerColors[1], 14, fRadius2, 20)
+      ]
+    }
+
+    @layouts.push {
+      name: "3P"
+      players: [
+        @playerLayout(PlayerColors[0], 4, fRadius2, 20)
+        @playerLayout(PlayerColors[1], 9, cRadius6, 20)
+        @playerLayout(PlayerColors[2], 14, fRadius2, 20)
+      ]
+    }
+
+    @layouts.push {
+      name: "4P"
+      players: [
+        @playerLayout(PlayerColors[0], 4, fRadius2, 20)
+        @playerLayout(PlayerColors[1], 9, cRadius6, 20)
+        @playerLayout(PlayerColors[2], 14, fRadius2, 20)
+        @playerLayout(PlayerColors[3], 19, cRadius6, 20)
+      ]
+    }
+
+    @layouts.push {
+      name: "Scoreboard 4P"
+      players: [
+        @playerLayout(PlayerColors[0], 2, cRadius6, 20, Math.PI / 2)
+        @playerLayout(PlayerColors[1], 6, cRadius6, 20, Math.PI / 2)
+        @playerLayout(PlayerColors[2], 12, cRadius6, 20, Math.PI / 2)
+        @playerLayout(PlayerColors[3], 16, cRadius6, 20, Math.PI / 2)
+      ]
+    }
+
+    @layouts.push {
+      name: "2v2"
+      players: [
+        @playerLayout(PlayerColors[0],  2, cRadius6, 20, -Math.PI / 2)
+        @playerLayout(PlayerColors[1],  6, cRadius6, 20,  Math.PI / 2)
+        @playerLayout(PlayerColors[1], 12, cRadius6, 20,  Math.PI / 2)
+        @playerLayout(PlayerColors[0], 16, cRadius6, 20, -Math.PI / 2)
+      ]
+    }
+
+    @layouts.push {
+      name: "5 Player"
+      players: [
+        @playerLayout(PlayerColors[0], 2, fRadius6, 20)
+        @playerLayout(PlayerColors[1], 6, fRadius6, 20)
+        @playerLayout(PlayerColors[2], 9, cRadius6, 20)
+        @playerLayout(PlayerColors[3], 12, fRadius6, 20)
+        @playerLayout(PlayerColors[4], 16, fRadius6, 20)
+      ]
+    }
+
+    @layouts.push {
+      name: "6P"
+      players: [
+        @playerLayout(PlayerColors[0], 2, fRadius6, 20)
+        @playerLayout(PlayerColors[1], 6, fRadius6, 20)
+        @playerLayout(PlayerColors[2], 9, cRadius6, 20)
+        @playerLayout(PlayerColors[3], 12, fRadius6, 20)
+        @playerLayout(PlayerColors[4], 16, fRadius6, 20)
+        @playerLayout(PlayerColors[5], 19, cRadius6, 20)
+      ]
+    }
+
     @layouts.push {
       name: "Commander 6P"
       players: [
         @playerLayout(PlayerColors[0], 2, fRadius6, 40)
         @playerLayout(PlayerColors[1], 6, fRadius6, 40)
-        @playerLayout(PlayerColors[2], 9, cRadius6, 40)
-        @playerLayout(PlayerColors[3], 12, fRadius6, 40)
-        @playerLayout(PlayerColors[4], 16, fRadius6, 40)
-        @playerLayout(PlayerColors[5], 19, cRadius6, 40)
+        @playerLayout(PlayerColors[1], 9, cRadius6, 40)
+        @playerLayout(PlayerColors[1], 12, fRadius6, 40)
+        @playerLayout(PlayerColors[0], 16, fRadius6, 40)
+        @playerLayout(PlayerColors[0], 19, cRadius6, 40)
       ]
     }
 
@@ -73,8 +155,12 @@ class CounterView
     @draw()
 
   chooseLayout: (layout) ->
+    @layoutIndex = layout
     @players = clone(@layouts[layout].players)
     return
+
+  resetAllHealth: ->
+    @chooseLayout(@layoutIndex)
 
   # -------------------------------------------------------------------------------------
 
@@ -106,12 +192,14 @@ class CounterView
       angle += @sliceAngle
     return 0
 
-  playerLayout: (color, slice, radius, health) ->
+  playerLayout: (color, slice, radius, health, angle = null) ->
     c = @unpolar(((slice + 1) % @sliceCount) * @sliceAngle, radius, @center.x, @center.y)
+    if angle == null
+      angle = @facingOutAngle(c.x, c.y)
     player =
       x: c.x
       y: c.y
-      angle: @facingOutAngle(c.x, c.y)
+      angle: angle
       slice: slice
       health: health
       color: color
@@ -262,10 +350,10 @@ class CounterView
         if (value != 0) and (value != 1)
           if value > 0
             textV = "+#{value - 1}"
-            textColor = "#aaffaa"
+            textColor = Color.addText
           else
             textV = "#{value}"
-            textColor = "#ffaaaa"
+            textColor = Color.subtractText
           textPos = @unpolar(angle + @halfSliceAngle, @dialIncrementRadius, @center.x, @center.y)
           @app.drawTextCentered(textV, textPos.x, textPos.y, @fonts.increment, textColor, @facingOutAngle(textPos.x, textPos.y))
 

@@ -82,6 +82,8 @@ class MenuView
     @app.switchView("layout")
 
   resetAllHealth: ->
+    if(confirm("Reset all health?"))
+      @app.resetAllHealth()
 
   resume: ->
     @app.switchView("counter")

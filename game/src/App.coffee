@@ -64,18 +64,15 @@ class App
     # @switchView("sudoku")
     # , 0
 
-  reset: ->
-    # @views.sudoku.reset()
-    # @switchView("sudoku")
+  resetAllHealth: ->
+    @views.counter.resetAllHealth()
+    @switchView("counter")
 
   import: (importString) ->
     # return @views.sudoku.import(importString)
 
   export: ->
     # return @views.sudoku.export()
-
-  holeCount: ->
-    # return @views.sudoku.holeCount()
 
   draw: ->
     @view.draw()
